@@ -127,7 +127,7 @@ async function main() {
 
 	let mlsmpmNumParticleParams = [40000, 70000, 120000, 200000]
 	let mlsmpmInitBoxSizes = [[35, 25, 55], [40, 30, 60], [45, 40, 80], [50, 50, 80]]
-	let mlsmpmInitDistances = [60, 70, 90, 100]
+	let mlsmpmInitDistances = [60, 40, 90, 100]
 	let sphNumParticleParams = [10000, 20000, 30000, 40000]
 	let sphInitBoxSizes = [[0.7, 2.0, 0.7], [1.0, 2.0, 1.0], [1.2, 2.0, 1.2], [1.4, 2.0, 1.4]]
 	let sphInitDistances = [2.6, 3.0, 3.4, 3.8]
@@ -179,21 +179,44 @@ async function main() {
 	const largeValue = document.getElementById("large-value") as HTMLSpanElement;
 	const veryLargeValue = document.getElementById("very-large-value") as HTMLSpanElement;
 
-	// デバイスロストの監視
-	let errorLog = document.getElementById('error-reason') as HTMLSpanElement;
-	errorLog.textContent = "";
-	device.lost.then(info => {
-		const reason = info.reason ? `reason: ${info.reason}` : 'unknown reason';
-		errorLog.textContent = reason;
-	});
+// Window resize handler
+window.addEventListener('resize', () => {
+  // Get the current window width and map it to slider range (0-100)
+  const windowWidth = window.outerWidth;
+  const maxWidth = window.innerWidth; // Maximum window width to consider
+  const minWidth = 300;  // Minimum window width to consider
+  const normalizedWidth = Math.min(Math.max(windowWidth, minWidth), maxWidth);
+  const sliderValue = Math.round(((normalizedWidth - minWidth) / (maxWidth - minWidth)) * 100);
+  
+  // Update slider value and display
+  const slider = document.getElementById("slider") as HTMLInputElement;
+  const sliderValue_span = document.getElementById("slider-value") as HTMLSpanElement;
+  slider.value = String(sliderValue);
+  sliderValue_span.textContent = String(sliderValue);
+});
+
+// デバイスロストの監視
+let errorLog = document.getElementById('error-reason') as HTMLSpanElement;
+errorLog.textContent = "";
+device.lost.then(info => {
+  const reason = info.reason ? `reason: ${info.reason}` : 'unknown reason';
+  errorLog.textContent = reason;
+});
+
 
 	// はじめは mls-mpm
 	const initDistance = mlsmpmInitDistances[1]
 	let initBoxSize = mlsmpmInitBoxSizes[1]
 	let realBoxSize = [...initBoxSize];
 	mlsmpmSimulator.reset(mlsmpmNumParticleParams[1], mlsmpmInitBoxSizes[1])
-	camera.reset(canvasElement, initDistance, [initBoxSize[0] / 2, initBoxSize[1] / 4, initBoxSize[2] / 2], 
-		mlsmpmFov, mlsmpmZoomRate)
+
+	camera.reset(
+		canvasElement,
+		mlsmpmInitDistances[1],
+		[initBoxSize[0] / 2, initBoxSize[1] / 4, initBoxSize[2] / 2], 
+		mlsmpmFov,
+		mlsmpmZoomRate
+	);
 
 	smallValue.textContent = "40,000"
 	mediumValue.textContent = "70,000"
@@ -239,10 +262,12 @@ async function main() {
 				camera.reset(canvasElement, mlsmpmInitDistances[paramsIdx], [initBoxSize[0] / 2, initBoxSize[1] / 4, initBoxSize[2] / 2], 
 					mlsmpmFov, mlsmpmZoomRate)
 			}
-			realBoxSize = [...initBoxSize]
-			let slider = document.getElementById("slider") as HTMLInputElement
-			slider.value = "100"
-			numberButtonPressed = false
+realBoxSize = [...initBoxSize]
+let slider = document.getElementById("slider") as HTMLInputElement
+slider.value = "100"
+// Trigger initial window size sync
+window.dispatchEvent(new Event('resize'));
+numberButtonPressed = false
 		}
 
 		// ボックスサイズの変更

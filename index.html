@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WebGPU-Ocean</title>
+    <title>WebGPU-Ocean-Full</title>
     <style>
       body, html {
         height: 100%;
@@ -12,6 +12,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        font-family: 'Inter', Arial, Helvetica, sans-serif;
       }
       
       canvas {
@@ -35,6 +36,7 @@
         margin-right: 10px;
         font-size: 15px;
         width: 270px;
+        visibility: hidden;
       }
 
       #debug-info {
@@ -68,7 +70,7 @@
   </head>
   <body>
     <div id="ui-container">
-      <div>
+      <div style="visibility: hidden">
         <label>
           <input type="checkbox" id="particle">
           Particles
@@ -95,18 +97,12 @@
       </form>
     </div>
     <div id="howto-container">
-      <div> <b>Drag</b> to move camera </div>
+      <div> <b>Change width</b> to splash </div>
       <div> <b>Scroll</b> to zoom in and out </div>
     </div>
     <div id="debug-info">
       <span id="error-reason">loading now...(won't take longer than 10 seconds I guess)</span>
     </div>
-    <a href="https://github.com/matsuoka-601/webgpu-ocean" 
-      class="github-icon" 
-      target="_blank" 
-      rel="noopener noreferrer">
-        <i class="fab fa-github"></i>
-    </a>
     <canvas id="fluidCanvas"></canvas>
     <script type="module" src="main.ts"></script>
   </body>

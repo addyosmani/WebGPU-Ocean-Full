@@ -34,7 +34,10 @@ export class Camera {
         })
 
         canvasElement.addEventListener("mousemove", (event: MouseEvent) => {
+
+            // Disable dragging for this version
             if (this.isDragging) {
+                return;
                 const currentX = event.clientX;
                 const currentY = event.clientY;
                 const deltaX = this.prevX - currentX;
@@ -58,7 +61,8 @@ export class Camera {
         this.isDragging = false
         this.prevX = 0
         this.prevY = 0
-        this.currentXtheta = Math.PI / 4 * 1
+        //  Xtheta should be from the front view
+        this.currentXtheta = Math.PI / 2 * 1
         this.currentYtheta = -Math.PI / 12
         this.maxYTheta = 0
         this.minYTheta = -0.99 * Math.PI / 2.
