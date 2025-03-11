@@ -2,6 +2,7 @@ import { PrefixSumKernel } from 'webgpu-radix-sort';
 import { mat4 } from 'wgpu-matrix'
 
 import { Camera } from './camera'
+import { OceanSoundGenerator } from './audio/oceanSound'
 import { mlsmpmParticleStructSize, MLSMPMSimulator } from './mls-mpm/mls-mpm'
 import { SPHSimulator, sphParticleStructSize } from './sph/sph';
 import { renderUniformsViews, renderUniformsValues, numParticlesMax } from './common'
@@ -223,9 +224,21 @@ device.lost.then(info => {
 	largeValue.textContent = "120,000"
 	veryLargeValue.textContent = "200,000"
 
-	let sphereRenderFl = false
-	let sphFl = false
-	let boxWidthRatio = 1.
+let sphereRenderFl = false
+let sphFl = false
+let boxWidthRatio = 1.
+const oceanSound = new OceanSoundGenerator();
+
+// Initialize audio controls
+const audioToggle = document.getElementById('audio-toggle') as HTMLInputElement;
+
+audioToggle.addEventListener('change', () => {
+    if (audioToggle.checked) {
+        oceanSound.start();
+    } else {
+        oceanSound.stop();
+    }
+});
 
 	console.log("simulation start")
 	async function frame() {
@@ -274,10 +287,17 @@ numberButtonPressed = false
 		const slider = document.getElementById("slider") as HTMLInputElement
 		const particle = document.getElementById("particle") as HTMLInputElement
 		sphereRenderFl = particle.checked
-		let curBoxWidthRatio = parseInt(slider.value) / 200 + 0.5
-		const minClosingSpeed = sphFl ? -0.015 : -0.007
-		const dVal = Math.max(curBoxWidthRatio - boxWidthRatio, minClosingSpeed)
-		boxWidthRatio += dVal
+
+let curBoxWidthRatio = parseInt(slider.value) / 200 + 0.5
+const minClosingSpeed = sphFl ? -0.015 : -0.007
+const dVal = Math.max(curBoxWidthRatio - boxWidthRatio, minClosingSpeed)
+boxWidthRatio += dVal
+
+// Update ocean sound intensity based on box width changes
+if (audioToggle.checked) {
+    const intensity = Math.abs(dVal) * 30; // Scale the intensity based on box width changes
+    oceanSound.setWaveIntensity(intensity);
+}
 
 		// 行列の更新
 		realBoxSize[2] = initBoxSize[2] * boxWidthRatio
